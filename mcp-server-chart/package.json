@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@antv/gpt-vis-ssr": "^0.2.2",
+    "mcp-proxy": "^5.5.6"
+  }
+}

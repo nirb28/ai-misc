@@ -1,1 +1,1 @@
-npx @modelcontextprotocol/inspector
+$env:DANGEROUSLY_OMIT_AUTH="true"; npx @modelcontextprotocol/inspector

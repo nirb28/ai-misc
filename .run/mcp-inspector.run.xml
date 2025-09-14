@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="mcp-inspector" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="npx @modelcontextprotocol/inspector" />
+    <option name="SCRIPT_TEXT" value="$env:DANGEROUSLY_OMIT_AUTH=&quot;true&quot;; npx @modelcontextprotocol/inspector" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="false" />
     <option name="SCRIPT_PATH" value="$PROJECT_DIR$/../ai-misc/mcp-inspector/startup.ps1" />
     <option name="SCRIPT_OPTIONS" value="" />

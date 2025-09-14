@@ -1,0 +1,32 @@
+# RAG Configuration File
+# This file defines different RAG parameter sets that can be referenced using @rag(parameter_name)
+# The configuration is loaded dynamically each time, so changes take effect without restarting
+
+rag_configurations:
+  # Example: @rag(malts) - Configuration for malt-related queries
+  malts:
+    k: 5
+    include_metadata: true
+    configuration_name: "batch_ml_ai_basics_test"
+    fusion_method: "rrf"
+    similarity_threshold: 0.3
+    use_reranking: false
+    filter_after_reranking: false
+    
+  # Example: @rag(comprehensive) - Comprehensive search with many results
+  comprehensive:
+    k: 10
+    include_metadata: true
+    configuration_name: "full_knowledge_base"
+    fusion_method: "rrf"
+    similarity_threshold: 0.05
+    use_reranking: true
+    filter_after_reranking: true
+    query_expansion:
+      enabled: true
+      strategy: "multi_query"
+      num_queries: 4
+    filter:
+      security_level: "public"
+      access_level: "general"
+      

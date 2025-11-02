@@ -1,5 +1,10 @@
+__pycache__/
 node_modules/
 .idea/
 litellm/.env
 code-server-data/
 tabby-data/
+.jl_venv
+.ipynb_checkpoints/
+code-assist/lab/
+*.egg-info

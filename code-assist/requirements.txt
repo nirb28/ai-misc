@@ -1,4 +1,5 @@
-pip install jupyterlab
-pip install 'jupyter-ai[all]'
-pip install openai langchain-openai
-pip install 'jupyter-ai-magics[all]' 
+jupyterlab
+jupyter-ai[all]
+openai 
+langchain-openai
+jupyter-ai-magics[all] 

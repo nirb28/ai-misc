@@ -11,7 +11,7 @@ model_list:
       max_tokens: 6000  # Mandatory for NVIDIA API :cite[10]
       temperature: 0.2
 
-  - model_name: nvidia/gpt-oss-120b # Custom alias
+  - model_name: gpt120b # Custom alias
     litellm_params:
       model: "nvidia_nim/openai/gpt-oss-120b"  # e.g., "meta/llama-3.1-70b-instruct"
       api_key: "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"
@@ -19,7 +19,7 @@ model_list:
       max_tokens: 6000  # Mandatory for NVIDIA API :cite[10]
       temperature: 0.2
 
-  - model_name: "nvidia/llama-3.3-70b-B"  # Your friendly name for the model
+  - model_name: "llama3"  # Your friendly name for the model
     litellm_params:
       model: "nvidia_nim/meta/llama-3.3-70b-instruct"  # <- THE KEY! Forces the correct template
       api_key: "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"

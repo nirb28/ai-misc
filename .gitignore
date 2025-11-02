@@ -1,3 +1,5 @@
 node_modules/
 .idea/
 litellm/.env
+code-server-data/
+tabby-data/

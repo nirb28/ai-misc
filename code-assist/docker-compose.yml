@@ -1,0 +1,18 @@
+version: '3'
+services:
+  code-server:
+    image: linuxserver/code-server:latest
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./code-server-data:/config
+  tabby:
+    image: tabbyml/tabby:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - TABBY_MODEL=meta/llama-3.3-70b-instruct
+      - TABBY_API_BASE_URL=https://integrate.api.nvidia.com/v1
+      - TABBY_API_KEY=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
+    volumes:
+      - ./tabby-data:/data

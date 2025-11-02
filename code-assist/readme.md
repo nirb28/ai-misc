@@ -1,0 +1,1 @@
+D:\\ds\\work\\workspace\\git\\dsp-ai-control-tower\\.jl_venv\\Scripts\\jupyter.exe ai model add --name llama-33 --api-base https://integrate.api.nvidia.com/v1 --api-key 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 --model meta/llama-3.3-70b-instruct

@@ -1,0 +1,9 @@
+- id: openai:meta/llama-3.3-70b-instruct
+  label: AIHPC Llama 3.3 70B
+  config:
+    apiBaseUrl: https://integrate.api.nvidia.com/v1  # NVIDIA's OpenAI-compatible base URL
+    apiKey: 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 #${NVAPI_KEY}
+    temperature: 0.7  
+    max_tokens: 512
+
+

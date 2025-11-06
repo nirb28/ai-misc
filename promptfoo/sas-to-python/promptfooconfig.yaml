@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: 'SAS to Python code conversion'
+prompts:
+  - 'Convert the following SAS code to equivalent Python code: {{sas_code}}'
+providers:
+  - file://../providers.yaml
+
+tests:
+  - vars:
+      sas_code: |
+        /* Sample large SAS code block for conversion */
+        data work.example;
+          set sashelp.class;
+          where age > 12;
+          keep name age;
+          run;
+
+        proc print data=work.example;
+          run;
+    assert:
+      - type: contains
+        value: 'import pandas as pd'  # Expecting Python data handling
+  - vars:
+      sas_code: |
+        /* Another large SAS code block */
+        proc sql;
+          create table work.result as
+          select * from sashelp.cars
+          where origin = 'Asia';
+          quit;
+
+        proc sort data=work.result;
+          by msrp;
+          run;
+    assert:
+      - type: contains
+        value: 'df = pd.DataFrame'  # Expecting DataFrame usage in Python

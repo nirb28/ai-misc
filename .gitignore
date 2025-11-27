@@ -5,6 +5,9 @@ litellm/.env
 code-server-data/
 tabby-data/
 .jl_venv
+.model_serve_venv
+.model_serve_wsl_venv
+github.copilot*
 .ipynb_checkpoints/
 code-assist/lab/
 *.egg-info

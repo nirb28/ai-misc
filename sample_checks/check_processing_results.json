@@ -1,0 +1,35 @@
+[
+  {
+    "check_number": "1",
+    "date": "11/22/2024",
+    "amount_numeric": "$100.00",
+    "amount_written": "#1 $100.00 One hundred and 00/100",
+    "payee": null,
+    "account_number": null,
+    "bank_name": [],
+    "routing_number": null,
+    "all_text": "SAMPLE BANK 123 Main Street, City, ST 12345 Check #: 1001 Date: 11/22/2024 Payto the order of John Doe #1 $100.00 One hundred and 00/100 Dollars SAMPLE BANK Memo: Aut"
+  },
+  {
+    "check_number": "2",
+    "date": "11/22/2025",
+    "amount_numeric": "$200.00",
+    "amount_written": "#2 $200.00 \u2018Two hundred and 00/100",
+    "payee": null,
+    "account_number": null,
+    "bank_name": [],
+    "routing_number": null,
+    "all_text": "SAMPLE BANK 123 Main Street, City, ST 12345 Check #: 1002 Date: 11/22/2025 Payto the order of John Doe #2 $200.00 \u2018Two hundred and 00/100 Dollars SAMPLE BANK Memo: Aut"
+  },
+  {
+    "check_number": "3",
+    "date": "11/22/2026",
+    "amount_numeric": "$300.00",
+    "amount_written": "#3 $300.00 Three hundred and 00/100",
+    "payee": null,
+    "account_number": null,
+    "bank_name": [],
+    "routing_number": null,
+    "all_text": "SAMPLE BANK 123 Main Street, City, ST 12345 Check #: 1003 Date: 11/22/2026 Payto the order of John Doe #3 $300.00 Three hundred and 00/100 Dollars SAMPLE BANK Memo: Aut"
+  }
+]

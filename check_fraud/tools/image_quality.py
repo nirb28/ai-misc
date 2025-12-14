@@ -30,14 +30,26 @@ class ImageQualityAnalyzer:
     - Noise levels
     - Skew and alignment
     - Cropping and completeness
+    
+    Note: Image quality analysis uses metadata-based heuristics.
+    Real mode would use actual image processing libraries.
     """
     
     MINIMUM_QUALITY_SCORE = 0.6
     OPTIMAL_QUALITY_SCORE = 0.85
     
-    def __init__(self):
+    def __init__(self, use_simulation: bool = True, llm=None):
+        """
+        Initialize image quality analyzer.
+        
+        Args:
+            use_simulation: If True, use metadata-based analysis.
+            llm: LLM instance (not typically used for image quality).
+        """
         self.min_resolution = (1200, 600)
         self.optimal_dpi = 200
+        self.use_simulation = use_simulation
+        self.llm = llm
     
     def analyze(self, check_data: Dict[str, Any]) -> ImageQualityResult:
         """

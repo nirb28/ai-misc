@@ -1,11 +1,12 @@
 """Check Analysis Agent - Analyzes physical check characteristics."""
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime
 
 from database.models import AgentVerdict, FraudVerdict, RiskLevel, Check
 from tools import WatermarkDetector, SignatureAnalyzer, MICRValidator, ImageQualityAnalyzer
 from graph.state import FraudDetectionState, CheckAnalysisResult
+from config import get_analysis_config, AnalysisConfig
 
 
 class CheckAnalysisAgent:
@@ -17,15 +18,28 @@ class CheckAnalysisAgent:
     - Signature validity and comparison
     - MICR line validation
     - Image quality assessment
+    
+    Supports both simulation mode and real LLM-based analysis.
     """
     
     AGENT_NAME = "check_analysis_agent"
     
-    def __init__(self):
-        self.watermark_detector = WatermarkDetector()
-        self.signature_analyzer = SignatureAnalyzer()
-        self.micr_validator = MICRValidator()
-        self.image_analyzer = ImageQualityAnalyzer()
+    def __init__(self, config: Optional[AnalysisConfig] = None, llm=None):
+        """
+        Initialize check analysis agent.
+        
+        Args:
+            config: Analysis configuration. If None, uses global config.
+            llm: LangChain LLM instance for real analysis mode.
+        """
+        self.config = config or get_analysis_config()
+        self.llm = llm
+        
+        use_sim = self.config.use_simulation
+        self.watermark_detector = WatermarkDetector(use_simulation=use_sim, llm=llm)
+        self.signature_analyzer = SignatureAnalyzer(use_simulation=use_sim, llm=llm)
+        self.micr_validator = MICRValidator(use_simulation=use_sim, llm=llm)
+        self.image_analyzer = ImageQualityAnalyzer(use_simulation=use_sim, llm=llm)
     
     def analyze(self, state: FraudDetectionState) -> Dict[str, Any]:
         """

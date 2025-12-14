@@ -35,6 +35,9 @@ class MICRValidator:
     - ⑈ = On-Us symbol  
     - A = Account number
     - C = Check number
+    
+    Note: MICR validation uses deterministic rules (checksum, format),
+    so simulation vs real mode doesn't change the core logic.
     """
     
     VALID_ROUTING_PREFIXES = [
@@ -47,10 +50,19 @@ class MICRValidator:
         "80",
     ]
     
-    def __init__(self):
+    def __init__(self, use_simulation: bool = True, llm=None):
+        """
+        Initialize MICR validator.
+        
+        Args:
+            use_simulation: Simulation flag (MICR uses deterministic validation regardless).
+            llm: LLM instance (not used for MICR - validation is rule-based).
+        """
         self.routing_pattern = re.compile(r'⑆(\d{9})⑆')
         self.account_pattern = re.compile(r'⑈(\d+)⑈')
         self.check_pattern = re.compile(r'(\d{3,6})$')
+        self.use_simulation = use_simulation
+        self.llm = llm
     
     def validate(self, check_data: Dict[str, Any]) -> MICRValidationResult:
         """

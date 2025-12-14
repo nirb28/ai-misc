@@ -7,11 +7,12 @@ import json
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, AzureChatOpenAI
 from langchain_groq import ChatGroq
 
 from database.models import AgentVerdict, FraudVerdict, RiskLevel
 from graph.state import FraudDetectionState
+from config import get_analysis_config, LLMConfig
 
 
 GENERIC_FRAUD_ANALYSIS_PROMPT = """You are an expert fraud analyst specializing in check fraud detection. You have extensive experience in identifying fraudulent checks through pattern recognition, behavioral analysis, and holistic assessment of multiple risk factors.
@@ -98,37 +99,88 @@ class GenericFraudAgent:
     
     AGENT_NAME = "generic_fraud_agent"
     
-    def __init__(self, llm_provider: str = "groq", model: Optional[str] = None):
-        self.llm_provider = llm_provider
-        self.model = model
+    def __init__(
+        self, 
+        llm_provider: Optional[str] = None, 
+        model: Optional[str] = None,
+        llm_config: Optional[LLMConfig] = None,
+    ):
+        """
+        Initialize the generic fraud agent.
+        
+        Args:
+            llm_provider: LLM provider ("groq", "openai", "azure"). If None, uses config.
+            model: Model name. If None, uses config or provider default.
+            llm_config: Optional LLMConfig object. If provided, overrides other params.
+        """
+        if llm_config:
+            self.llm_config = llm_config
+        else:
+            config = get_analysis_config()
+            self.llm_config = LLMConfig(
+                provider=llm_provider or config.llm_config.provider,
+                model=model or config.llm_config.model,
+                api_key=config.llm_config.api_key,
+                azure_endpoint=config.llm_config.azure_endpoint,
+                azure_api_version=config.llm_config.azure_api_version,
+                azure_deployment=config.llm_config.azure_deployment,
+            )
+        
         self.llm = self._initialize_llm()
         self.prompt = ChatPromptTemplate.from_template(GENERIC_FRAUD_ANALYSIS_PROMPT)
         self.parser = JsonOutputParser()
     
     def _initialize_llm(self):
         """Initialize the LLM based on provider."""
-        if self.llm_provider == "groq":
-            model = self.model or "llama-3.3-70b-versatile"
-            api_key = os.getenv("GROQ_API_KEY")
+        provider = self.llm_config.provider
+        
+        if provider == "groq":
+            model = self.llm_config.model or "llama-3.3-70b-versatile"
+            api_key = self.llm_config.api_key or os.getenv("GROQ_API_KEY")
             if not api_key:
                 raise ValueError("GROQ_API_KEY environment variable not set")
             return ChatGroq(
                 model=model,
-                temperature=0.1,
+                temperature=self.llm_config.temperature,
                 api_key=api_key,
             )
-        elif self.llm_provider == "openai":
-            model = self.model or "gpt-4o"
-            api_key = os.getenv("OPENAI_API_KEY")
+        elif provider == "openai":
+            model = self.llm_config.model or "gpt-4o"
+            api_key = self.llm_config.api_key or os.getenv("OPENAI_API_KEY")
             if not api_key:
                 raise ValueError("OPENAI_API_KEY environment variable not set")
             return ChatOpenAI(
                 model=model,
-                temperature=0.1,
+                temperature=self.llm_config.temperature,
                 api_key=api_key,
             )
+        elif provider == "azure":
+            api_key = self.llm_config.api_key or os.getenv("AZURE_OPENAI_API_KEY")
+            endpoint = self.llm_config.azure_endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
+            deployment = self.llm_config.azure_deployment or os.getenv("AZURE_OPENAI_DEPLOYMENT")
+            api_version = self.llm_config.azure_api_version or os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
+            
+            if not api_key:
+                raise ValueError("AZURE_OPENAI_API_KEY environment variable not set")
+            if not endpoint:
+                raise ValueError("AZURE_OPENAI_ENDPOINT environment variable not set")
+            if not deployment:
+                raise ValueError("AZURE_OPENAI_DEPLOYMENT environment variable not set")
+            
+            azure_kwargs: Dict[str, Any] = {
+                "azure_deployment": deployment,
+                "azure_endpoint": endpoint,
+                "api_key": api_key,
+                "api_version": api_version,
+            }
+            # Some Azure deployments (e.g. gpt-5-nano) reject non-default temperatures.
+            # Only send temperature when it's explicitly the default (1.0) to avoid 400s.
+            if self.llm_config.temperature is not None and float(self.llm_config.temperature) == 1.0:
+                azure_kwargs["temperature"] = float(self.llm_config.temperature)
+
+            return AzureChatOpenAI(**azure_kwargs)
         else:
-            raise ValueError(f"Unsupported LLM provider: {self.llm_provider}")
+            raise ValueError(f"Unsupported LLM provider: {provider}")
     
     def analyze(self, state: FraudDetectionState) -> Dict[str, Any]:
         """

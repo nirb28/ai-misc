@@ -5,6 +5,8 @@ from datetime import datetime
 import os
 
 from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI, AzureChatOpenAI
+from langchain_groq import ChatGroq
 
 from database.models import Check, Client, FraudAnalysisResult
 from database.transaction_db import TransactionDatabase
@@ -15,6 +17,56 @@ from agents.policy_agent import PolicyAnalysisAgent
 from agents.generic_fraud_agent import GenericFraudAgent
 from agents.voting_aggregator import VotingAggregator
 from graph.state import FraudDetectionState, create_initial_state
+from config import get_analysis_config, AnalysisConfig, LLMConfig
+
+
+def create_llm_from_config(llm_config: LLMConfig):
+    """Create an LLM instance from configuration."""
+    provider = llm_config.provider
+    
+    if provider == "groq":
+        model = llm_config.model or "llama-3.3-70b-versatile"
+        api_key = llm_config.api_key or os.getenv("GROQ_API_KEY")
+        if not api_key:
+            return None
+        return ChatGroq(
+            model=model,
+            temperature=llm_config.temperature,
+            api_key=api_key,
+        )
+    elif provider == "openai":
+        model = llm_config.model or "gpt-4o"
+        api_key = llm_config.api_key or os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return None
+        return ChatOpenAI(
+            model=model,
+            temperature=llm_config.temperature,
+            api_key=api_key,
+        )
+    elif provider == "azure":
+        api_key = llm_config.api_key or os.getenv("AZURE_OPENAI_API_KEY")
+        endpoint = llm_config.azure_endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
+        deployment = llm_config.azure_deployment or os.getenv("AZURE_OPENAI_DEPLOYMENT")
+        api_version = llm_config.azure_api_version or os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
+        
+        if not all([api_key, endpoint, deployment]):
+            return None
+        
+        azure_kwargs: Dict[str, Any] = {
+            "azure_deployment": deployment,
+            "azure_endpoint": endpoint,
+            "api_key": api_key,
+            "api_version": api_version,
+        }
+        # Some Azure deployments (e.g. gpt-5-nano) reject non-default temperatures.
+        # Only send temperature when it's explicitly the default (1.0) to avoid 400s.
+        if llm_config.temperature is not None and float(llm_config.temperature) == 1.0:
+            azure_kwargs["temperature"] = float(llm_config.temperature)
+
+        return AzureChatOpenAI(**azure_kwargs)
+    
+    return None
 
 
 def create_fraud_detection_workflow(
@@ -177,6 +229,7 @@ def run_fraud_detection_without_llm(
     check: Check,
     client: Optional[Client] = None,
     agent_weights: Optional[Dict[str, float]] = None,
+    use_simulation: bool = True,
 ) -> FraudAnalysisResult:
     """
     Run fraud detection without the LLM-based generic agent.
@@ -187,14 +240,23 @@ def run_fraud_detection_without_llm(
         check: Check to analyze
         client: Optional client information
         agent_weights: Custom weights for voting
+        use_simulation: If True, use simulated analysis. If False, use real LLM for tools.
     
     Returns:
         FraudAnalysisResult with analysis from non-LLM agents
     """
+    config = get_analysis_config()
+    config.use_simulation = use_simulation
+    
+    # Create LLM for tools if not using simulation
+    llm = None
+    if not use_simulation:
+        llm = create_llm_from_config(config.llm_config)
+    
     transaction_db = TransactionDatabase()
     policy_db = PolicyDatabase()
     
-    check_agent = CheckAnalysisAgent()
+    check_agent = CheckAnalysisAgent(config=config, llm=llm)
     transaction_agent = TransactionHistoryAgent(transaction_db)
     policy_agent = PolicyAnalysisAgent(policy_db, transaction_db)
     voting_aggregator = VotingAggregator(agent_weights)
@@ -209,6 +271,67 @@ def run_fraud_detection_without_llm(
     
     policy_result = policy_agent.analyze(state)
     state = _merge_state(state, policy_result)
+    
+    voting_result = voting_aggregator.aggregate(state)
+    state = _merge_state(state, voting_result)
+    
+    return voting_aggregator.create_analysis_result(state)
+
+
+def run_fraud_detection_with_real_analysis(
+    check: Check,
+    client: Optional[Client] = None,
+    llm_provider: str = "azure",
+    llm_model: Optional[str] = None,
+    agent_weights: Optional[Dict[str, float]] = None,
+) -> FraudAnalysisResult:
+    """
+    Run fraud detection with real LLM-based analysis (no simulation).
+    
+    All agents use real LLM models for analysis.
+    
+    Args:
+        check: Check to analyze
+        client: Optional client information
+        llm_provider: LLM provider ("azure", "groq", "openai")
+        llm_model: Specific model to use
+        agent_weights: Custom weights for voting
+    
+    Returns:
+        FraudAnalysisResult with real LLM-based analysis
+    """
+    config = get_analysis_config()
+    config.use_simulation = False
+    config.llm_config.provider = llm_provider
+    if llm_model:
+        config.llm_config.model = llm_model
+    
+    llm = create_llm_from_config(config.llm_config)
+    if not llm:
+        raise ValueError(f"Could not create LLM for provider: {llm_provider}. Check API keys.")
+    
+    transaction_db = TransactionDatabase()
+    policy_db = PolicyDatabase()
+    
+    check_agent = CheckAnalysisAgent(config=config, llm=llm)
+    transaction_agent = TransactionHistoryAgent(transaction_db)
+    policy_agent = PolicyAnalysisAgent(policy_db, transaction_db)
+    generic_agent = GenericFraudAgent(llm_config=config.llm_config)
+    voting_aggregator = VotingAggregator(agent_weights)
+    
+    state = create_initial_state(check, client)
+    
+    check_result = check_agent.analyze(state)
+    state = _merge_state(state, check_result)
+    
+    transaction_result = transaction_agent.analyze(state)
+    state = _merge_state(state, transaction_result)
+    
+    policy_result = policy_agent.analyze(state)
+    state = _merge_state(state, policy_result)
+    
+    generic_result = generic_agent.analyze(state)
+    state = _merge_state(state, generic_result)
     
     voting_result = voting_aggregator.aggregate(state)
     state = _merge_state(state, voting_result)

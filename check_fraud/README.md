@@ -1,5 +1,7 @@
 # Check Fraud Detection System
 
+> **LangGraph-based Multi-Agent Fraud Analysis with Simulation and Real LLM Modes**
+
 A LangGraph-based agentic solution for detecting check fraud using multiple specialized agents and a voting mechanism.
 
 ## Architecture
@@ -74,14 +76,53 @@ pip install -r requirements.txt
 
 ## Environment Variables
 
-Create a `.env` file:
-```
-OPENAI_API_KEY=your_key_here
-# Or use other LLM providers
-GROQ_API_KEY=your_groq_key
+Create a `.env` file based on `.env.example`:
+
+```bash
+# LLM Provider API Keys
+GROQ_API_KEY=your_groq_key_here
+OPENAI_API_KEY=your_openai_key_here
+
+# Azure OpenAI Configuration (for gpt-5-nano or other Azure models)
+AZURE_OPENAI_API_KEY=your_azure_key_here
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=gpt-5-nano
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+
+# Default provider and simulation mode
+LLM_PROVIDER=azure
+USE_SIMULATION=false
 ```
 
+## Simulation vs Real Mode
+
+The system supports two modes:
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| **Simulation** (default) | Uses rule-based heuristics for analysis | Testing, development, no API costs |
+| **Real** | Uses actual LLM models for all analysis | Production, accurate fraud detection |
+
 ## Running the System
+
+### CLI Usage
+
+```bash
+# List available checks
+python main.py --list-checks
+
+# Simulation mode (default) - no LLM calls for tools
+python main.py --check-id CHECK001 --no-llm --verbose
+
+# With LLM generic agent (simulation for tools, LLM for holistic analysis)
+python main.py --check-id CHECK_FRAUD001 --verbose
+
+# REAL mode - all agents use LLM (Azure gpt-5-nano)
+python main.py --check-id CHECK_FRAUD001 --real --llm-provider azure --verbose
+
+# REAL mode with Groq
+python main.py --check-id CHECK_FRAUD001 --real --llm-provider groq --verbose
+```
 
 ### Start the UI
 ```bash
@@ -91,11 +132,6 @@ streamlit run ui/app.py
 ### Run Tests
 ```bash
 pytest tests/ -v
-```
-
-### CLI Usage
-```bash
-python -m check_fraud.main --check-id CHECK001
 ```
 
 ## Project Structure

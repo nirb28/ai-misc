@@ -11,3 +11,4 @@ github.copilot*
 .ipynb_checkpoints/
 code-assist/lab/
 *.egg-info
+.env

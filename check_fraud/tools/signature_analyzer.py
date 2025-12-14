@@ -3,6 +3,10 @@
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 import random
+import json
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
 
 
 @dataclass
@@ -18,15 +22,44 @@ class SignatureAnalysisResult:
     details: str
 
 
+SIGNATURE_ANALYSIS_PROMPT = """You are an expert forensic document examiner specializing in signature verification.
+
+Analyze the following check information for signature presence, validity, and potential forgery indicators.
+
+## Check Information
+- Signature Present Flag: {signature_present}
+- Client Name: {client_name}
+- Check Amount: ${amount}
+- Payee: {payee}
+- Check Metadata: {metadata}
+
+## Analysis Instructions
+Evaluate the signature based on:
+1. Whether a signature is present
+2. Consistency with expected signing patterns
+3. Any indicators of forgery or alteration
+4. Position and quality of the signature
+
+## Response Format
+Provide your analysis in JSON format:
+{{
+    "signature_present": true/false,
+    "signature_valid": true/false,
+    "confidence": <float 0.0-1.0>,
+    "match_score": <float 0.0-1.0 or null>,
+    "position_correct": true/false,
+    "anomalies": ["<anomaly 1>", ...],
+    "forgery_indicators": ["tremor_lines", "pen_lifts", "inconsistent_pressure", ...],
+    "details": "<detailed explanation>"
+}}
+"""
+
+
 class SignatureAnalyzer:
     """
-    Simulated signature analysis for check verification.
+    Signature analysis for check verification.
     
-    In production, this would use:
-    - Deep learning signature verification models
-    - Stroke pattern analysis
-    - Pressure point detection
-    - Historical signature comparison
+    Supports both simulation mode and real LLM-based analysis.
     """
     
     FORGERY_INDICATORS = [
@@ -39,9 +72,22 @@ class SignatureAnalyzer:
         "style_deviation",
     ]
     
-    def __init__(self):
+    def __init__(self, use_simulation: bool = True, llm=None):
+        """
+        Initialize signature analyzer.
+        
+        Args:
+            use_simulation: If True, use simulated analysis. If False, use LLM.
+            llm: LangChain LLM instance for real analysis.
+        """
         self.match_threshold = 0.85
         self.minimum_confidence = 0.7
+        self.use_simulation = use_simulation
+        self.llm = llm
+        
+        if not use_simulation and llm:
+            self.prompt = ChatPromptTemplate.from_template(SIGNATURE_ANALYSIS_PROMPT)
+            self.parser = JsonOutputParser()
     
     def analyze(self, check_data: Dict[str, Any]) -> SignatureAnalysisResult:
         """
@@ -53,6 +99,39 @@ class SignatureAnalyzer:
         Returns:
             SignatureAnalysisResult with analysis details
         """
+        if not self.use_simulation and self.llm:
+            return self._analyze_with_llm(check_data)
+        return self._analyze_simulated(check_data)
+    
+    def _analyze_with_llm(self, check_data: Dict[str, Any]) -> SignatureAnalysisResult:
+        """Perform LLM-based signature analysis."""
+        try:
+            chain = self.prompt | self.llm | self.parser
+            
+            metadata = check_data.get("metadata", {})
+            result = chain.invoke({
+                "signature_present": check_data.get("signature_present", "Unknown"),
+                "client_name": check_data.get("client_name", "Unknown"),
+                "amount": check_data.get("amount", 0),
+                "payee": check_data.get("payee", "Unknown"),
+                "metadata": json.dumps(metadata),
+            })
+            
+            return SignatureAnalysisResult(
+                signature_present=result.get("signature_present", False),
+                signature_valid=result.get("signature_valid", False),
+                confidence=float(result.get("confidence", 0.5)),
+                match_score=result.get("match_score"),
+                position_correct=result.get("position_correct", True),
+                anomalies=result.get("anomalies", []),
+                forgery_indicators=result.get("forgery_indicators", []),
+                details=result.get("details", "LLM analysis completed."),
+            )
+        except Exception as e:
+            return self._analyze_simulated(check_data)
+    
+    def _analyze_simulated(self, check_data: Dict[str, Any]) -> SignatureAnalysisResult:
+        """Perform simulated signature analysis."""
         signature_present = check_data.get("signature_present", True)
         metadata = check_data.get("metadata", {})
         flags = metadata.get("flags", [])

@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from database.models import FraudVerdict, RiskLevel
 from database.sample_data import initialize_sample_data
-from graph.workflow import run_fraud_detection, run_fraud_detection_without_llm
+from graph.workflow import run_fraud_detection, run_fraud_detection_without_llm, run_fraud_detection_with_real_analysis
 
 
 def print_analysis_result(result, verbose: bool = False):
@@ -84,6 +84,7 @@ Examples:
   python main.py --check-id CHECK_FRAUD001 --verbose
   python main.py --list-checks
   python main.py --check-id CHECK_FRAUD003 --no-llm
+  .venv\Scripts\activate; python main.py --check-id CHECK_FRAUD001 --real --llm-provider azure --verbose
         """
     )
     
@@ -108,11 +109,22 @@ Examples:
         help="Run without LLM-based generic agent",
     )
     parser.add_argument(
+        "--simulation",
+        action="store_true",
+        default=True,
+        help="Use simulated analysis (default: True)",
+    )
+    parser.add_argument(
+        "--real",
+        action="store_true",
+        help="Use real LLM-based analysis for all agents (no simulation)",
+    )
+    parser.add_argument(
         "--llm-provider",
         type=str,
-        default="groq",
-        choices=["groq", "openai"],
-        help="LLM provider to use (default: groq)",
+        default="azure",
+        choices=["groq", "openai", "azure"],
+        help="LLM provider to use (default: azure)",
     )
     parser.add_argument(
         "--llm-model",
@@ -164,8 +176,18 @@ Examples:
     print("\nRunning fraud detection workflow...")
     
     try:
-        if args.no_llm:
-            result = run_fraud_detection_without_llm(check, client)
+        use_simulation = not args.real
+        
+        if args.real:
+            print(f"Using REAL LLM analysis with {args.llm_provider}")
+            result = run_fraud_detection_with_real_analysis(
+                check,
+                client,
+                llm_provider=args.llm_provider,
+                llm_model=args.llm_model,
+            )
+        elif args.no_llm:
+            result = run_fraud_detection_without_llm(check, client, use_simulation=use_simulation)
         else:
             result = run_fraud_detection(
                 check,

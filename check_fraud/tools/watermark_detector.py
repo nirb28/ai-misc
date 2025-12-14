@@ -3,6 +3,11 @@
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 import random
+import os
+import json
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import JsonOutputParser
 
 
 @dataclass
@@ -17,15 +22,43 @@ class WatermarkAnalysisResult:
     details: str
 
 
+WATERMARK_ANALYSIS_PROMPT = """You are an expert document forensics analyst specializing in check security features.
+
+Analyze the following check information for watermark presence and authenticity.
+
+## Check Information
+- Bank Name: {bank_name}
+- Has Watermark Flag: {has_watermark}
+- Image Quality Score: {image_quality}
+- Check Metadata: {metadata}
+
+## Analysis Instructions
+Evaluate the watermark based on:
+1. Whether a watermark should be present for this bank
+2. The reported watermark status
+3. Image quality that could affect watermark visibility
+4. Any suspicious indicators in the metadata
+
+## Response Format
+Provide your analysis in JSON format:
+{{
+    "watermark_detected": true/false,
+    "confidence": <float 0.0-1.0>,
+    "watermark_type": "bank_logo" | "security_pattern" | "void_pantograph" | null,
+    "position": "center" | "background" | "border" | null,
+    "quality_score": <float 0.0-1.0>,
+    "anomalies": ["<anomaly 1>", ...],
+    "details": "<detailed explanation>"
+}}
+"""
+
+
 class WatermarkDetector:
     """
-    Simulated watermark detection for check images.
+    Watermark detection for check images.
     
-    In production, this would use computer vision models to detect:
-    - Bank watermarks
-    - Security patterns
-    - UV-reactive elements
-    - Microprinting
+    Supports both simulation mode and real LLM-based analysis.
+    In production with real mode, uses LLM to analyze check data.
     """
     
     WATERMARK_TYPES = [
@@ -43,8 +76,21 @@ class WatermarkDetector:
         "corners",
     ]
     
-    def __init__(self):
+    def __init__(self, use_simulation: bool = True, llm=None):
+        """
+        Initialize watermark detector.
+        
+        Args:
+            use_simulation: If True, use simulated analysis. If False, use LLM.
+            llm: LangChain LLM instance for real analysis. Required if use_simulation=False.
+        """
         self.detection_threshold = 0.7
+        self.use_simulation = use_simulation
+        self.llm = llm
+        
+        if not use_simulation and llm:
+            self.prompt = ChatPromptTemplate.from_template(WATERMARK_ANALYSIS_PROMPT)
+            self.parser = JsonOutputParser()
     
     def analyze(self, check_data: Dict[str, Any]) -> WatermarkAnalysisResult:
         """
@@ -57,6 +103,38 @@ class WatermarkDetector:
         Returns:
             WatermarkAnalysisResult with detection details
         """
+        if not self.use_simulation and self.llm:
+            return self._analyze_with_llm(check_data)
+        return self._analyze_simulated(check_data)
+    
+    def _analyze_with_llm(self, check_data: Dict[str, Any]) -> WatermarkAnalysisResult:
+        """Perform LLM-based watermark analysis."""
+        try:
+            chain = self.prompt | self.llm | self.parser
+            
+            metadata = check_data.get("metadata", {})
+            result = chain.invoke({
+                "bank_name": check_data.get("bank_name", "Unknown"),
+                "has_watermark": check_data.get("has_watermark", "Unknown"),
+                "image_quality": metadata.get("image_quality_score", "Unknown"),
+                "metadata": json.dumps(metadata),
+            })
+            
+            return WatermarkAnalysisResult(
+                watermark_detected=result.get("watermark_detected", False),
+                confidence=float(result.get("confidence", 0.5)),
+                watermark_type=result.get("watermark_type"),
+                position=result.get("position"),
+                quality_score=float(result.get("quality_score", 0.5)),
+                anomalies=result.get("anomalies", []),
+                details=result.get("details", "LLM analysis completed."),
+            )
+        except Exception as e:
+            # Fallback to simulation on error
+            return self._analyze_simulated(check_data)
+    
+    def _analyze_simulated(self, check_data: Dict[str, Any]) -> WatermarkAnalysisResult:
+        """Perform simulated watermark analysis."""
         has_watermark = check_data.get("has_watermark", True)
         image_path = check_data.get("image_path", "")
         metadata = check_data.get("metadata", {})

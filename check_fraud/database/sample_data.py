@@ -131,6 +131,7 @@ def create_sample_transactions(clients: Dict[str, Client]) -> List[Transaction]:
 
 def create_sample_checks() -> Tuple[List[Check], List[Check]]:
     """Create sample checks - legitimate and potentially fraudulent."""
+    downloaded_sample_image = "sample_checks/downloaded/sample_cheque.jpeg"
     
     legitimate_checks = [
         Check(
@@ -145,7 +146,7 @@ def create_sample_checks() -> Tuple[List[Check], List[Check]]:
             bank_name="First National Bank",
             routing_number="071000013",
             account_number="1234567890",
-            image_path="sample_checks/legitimate_check_001.png",
+            image_path=downloaded_sample_image,
             micr_line="⑆071000013⑆ ⑈1234567890⑈ 1001",
             has_watermark=True,
             signature_present=True,
@@ -202,7 +203,7 @@ def create_sample_checks() -> Tuple[List[Check], List[Check]]:
             bank_name="First National Bank",
             routing_number="071000013",
             account_number="1234567890",
-            image_path="sample_checks/suspicious_check_001.png",
+            image_path=downloaded_sample_image,
             micr_line="⑆071000013⑆ ⑈1234567890⑈ 1099",
             has_watermark=False,
             signature_present=True,

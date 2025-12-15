@@ -105,6 +105,32 @@ The system supports two modes:
 
 ## Running the System
 
+## Using Downloaded Check Images
+
+This repo supports running analysis against real image files stored locally.
+
+1) Create the folder:
+
+```bash
+mkdir sample_checks\downloaded
+```
+
+2) Download a permissively licensed sample check image (Wikimedia Commons):
+
+```powershell
+Invoke-WebRequest `
+  -Uri "https://upload.wikimedia.org/wikipedia/commons/3/3c/Sample_cheque.jpeg" `
+  -OutFile "sample_checks\downloaded\sample_cheque.jpeg"
+```
+
+The built-in sample checks `CHECK001` and `CHECK_FRAUD001` are configured to reference:
+
+```
+sample_checks/downloaded/sample_cheque.jpeg
+```
+
+In **real mode** (`--real`), the `ImageQualityAnalyzer` will compute brightness/contrast/sharpness from the image file.
+
 ### CLI Usage
 
 ```bash
@@ -176,6 +202,6 @@ check_fraud/
     └── (sample check images and data)
 ```
 
-## License
 
-MIT
+.venv\Scripts\activate; 
+python main.py --check-id CHECK001 --real --llm-provider azure --verbose

@@ -2,6 +2,9 @@
 
 from typing import Dict, Any, List
 from dataclasses import dataclass
+import os
+
+from PIL import Image
 
 
 @dataclass
@@ -67,8 +70,70 @@ class ImageQualityAnalyzer:
         existing_score = metadata.get("image_quality_score")
         if existing_score is not None:
             return self._analyze_with_score(existing_score, metadata)
-        
+
+        if (not self.use_simulation) and image_path:
+            resolved_path = image_path
+            if not os.path.isabs(resolved_path):
+                resolved_path = os.path.join(os.getcwd(), resolved_path)
+            if os.path.exists(resolved_path):
+                result = self._analyze_from_image_file(resolved_path)
+                if result is not None:
+                    return result
+
         return self._simulate_quality_analysis(check_data)
+    
+    def _analyze_from_image_file(self, image_path: str) -> ImageQualityResult | None:
+        try:
+            with Image.open(image_path) as img:
+                img = img.convert("RGB")
+                width, height = img.size
+                resolution_ok = (width >= self.min_resolution[0]) and (height >= self.min_resolution[1])
+
+                gray = img.convert("L")
+                hist = gray.histogram()
+                total = float(sum(hist)) or 1.0
+                mean = sum(i * (hist[i] / total) for i in range(256))
+                var = sum(((i - mean) ** 2) * (hist[i] / total) for i in range(256))
+                std = var ** 0.5
+
+                brightness_score = max(0.0, 1.0 - abs(mean - 128.0) / 128.0)
+                contrast_score = max(0.0, min(1.0, std / 64.0))
+                sharpness_score = max(0.0, min(1.0, std / 80.0))
+                noise_level = max(0.0, 1.0 - sharpness_score)
+
+                score = (0.35 * brightness_score) + (0.35 * contrast_score) + (0.30 * sharpness_score)
+                score = max(0.1, min(1.0, score))
+
+                issues: List[str] = []
+                recommendations: List[str] = []
+
+                if not resolution_ok:
+                    issues.append(f"Low resolution: {width}x{height}")
+                    recommendations.append("Use higher resolution capture")
+                if brightness_score < 0.5:
+                    issues.append("Poor brightness")
+                    recommendations.append("Improve lighting")
+                if contrast_score < 0.5:
+                    issues.append("Low contrast")
+                    recommendations.append("Increase contrast / reduce glare")
+                if sharpness_score < 0.45:
+                    issues.append("Low sharpness")
+                    recommendations.append("Hold camera steady and focus")
+
+                return ImageQualityResult(
+                    overall_score=score,
+                    resolution_adequate=resolution_ok,
+                    brightness_score=brightness_score,
+                    contrast_score=contrast_score,
+                    sharpness_score=sharpness_score,
+                    noise_level=noise_level,
+                    skew_angle=0.0,
+                    issues=issues,
+                    recommendations=recommendations,
+                    details=self._format_quality_details(score, issues),
+                )
+        except Exception:
+            return None
     
     def _analyze_with_score(
         self,

@@ -9,6 +9,7 @@ It is useful when you have a starting commit SHA and want to fetch *all files th
 - Computes the set of changed file paths using GitHub's **Compare API** for the range:
   - `base = --commit`
   - `head = --ref` (or default branch `HEAD` if omitted)
+- To make the range **inclusive**, it also includes the files changed in the base commit itself.
 - Downloads each changed file's content at the **target ref** (not historical per-commit versions)
 - Writes files under an output folder, preserving repository paths
 

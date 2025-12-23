@@ -135,6 +135,21 @@ def extract_changed_paths(compare_payload: dict, include_removed: bool) -> Set[s
     return changed
 
 
+def extract_paths_from_commit(commit_payload: dict, include_removed: bool) -> Set[str]:
+    # single commit API returns a 'files' array similar to compare API.
+    files = commit_payload.get("files") or []
+    changed: Set[str] = set()
+    for f in files:
+        filename = f.get("filename")
+        status = (f.get("status") or "").lower()
+        if not filename:
+            continue
+        if status == "removed" and not include_removed:
+            continue
+        changed.add(filename)
+    return changed
+
+
 def download_file_at_ref(
     gh: GitHubClient,
     owner: str,
@@ -279,6 +294,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         )
 
     changed_paths = extract_changed_paths(compare_payload, include_removed=args.include_removed)
+
+    # GitHub compare(base...head) does NOT include the base commit's own diff.
+    # To make the range inclusive ("including and after"), union the base commit's changed files.
+    base_commit_payload = gh.get_commit(owner, repo, base_sha)
+    changed_paths |= extract_paths_from_commit(base_commit_payload, include_removed=args.include_removed)
 
     # Compute a default output path.
     short_sha = base_sha[:7]

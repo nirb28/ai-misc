@@ -1,0 +1,88 @@
+{
+  "id": null,
+  "uid": "prometheus-starter",
+  "title": "Prometheus Starter",
+  "tags": ["starter", "prometheus"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Prometheus Target Up",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "up",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Scrape Duration (95th)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(prometheus_target_scrape_pool_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Samples Scraped / Second",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(prometheus_target_scrapes_sample_duplicate_timestamp_total[5m]) + rate(prometheus_target_scrapes_sample_out_of_bounds_total[5m]) + rate(prometheus_target_scrapes_sample_limit_total[5m])",
+          "legendFormat": "samples",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Scrape Series Added",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(prometheus_tsdb_head_series_created_total[5m])",
+          "legendFormat": "series/s",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+    }
+  ]
+}

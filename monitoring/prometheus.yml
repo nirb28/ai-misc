@@ -6,3 +6,6 @@ scrape_configs:
   - job_name: "prometheus"
     static_configs:
       - targets: ["prometheus:9090"]
+  - job_name: "front-door"
+    static_configs:
+      - targets: ["fd:8000"]

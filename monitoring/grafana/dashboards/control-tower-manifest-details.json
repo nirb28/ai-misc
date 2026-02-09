@@ -1,0 +1,764 @@
+{
+  "id": null,
+  "uid": "ct-manifest-details",
+  "title": "Control Tower - Manifest Details",
+  "tags": ["control-tower", "manifests", "details"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "ct_url",
+        "type": "constant",
+        "label": "Control Tower URL",
+        "value": "http://host.docker.internal:8000",
+        "description": "Control Tower API base URL"
+      },
+      {
+        "name": "project_id",
+        "type": "textbox",
+        "label": "Project ID",
+        "description": "Manifest Project ID"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Manifest Info",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "background",
+        "textMode": "value_and_name",
+        "orientation": "horizontal"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Created Date",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Last Updated",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeAsIso",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Modules",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "count",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}/modules",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 5,
+                "color": "yellow"
+              },
+              {
+                "value": 10,
+                "color": "orange"
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "table",
+      "title": "Modules",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "modules",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}/modules",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "name": 0,
+              "module_type": 1,
+              "status": 2,
+              "version": 3,
+              "description": 4
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "enabled": {
+                        "color": "green",
+                        "text": "Enabled"
+                      },
+                      "disabled": {
+                        "color": "red",
+                        "text": "Disabled"
+                      },
+                      "development": {
+                        "color": "yellow",
+                        "text": "Development"
+                      },
+                      "deprecated": {
+                        "color": "orange",
+                        "text": "Deprecated"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      }
+    },
+    {
+      "type": "piechart",
+      "title": "Modules by Type",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "modules",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}/modules",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "module_type": {
+                "aggregations": ["count"],
+                "operation": "groupby"
+              }
+            }
+          }
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": ["value", "percent"]
+        },
+        "pieType": "pie",
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "piechart",
+      "title": "Modules by Status",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "modules",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}/modules",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "status": {
+                "aggregations": ["count"],
+                "operation": "groupby"
+              }
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "enabled"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "disabled"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "development"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "yellow"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": ["value", "percent"]
+        },
+        "pieType": "donut",
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "text",
+      "title": "Manifest Description",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests/${project_id}",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "${__data.fields.Description}"
+      }
+    },
+    {
+      "type": "table",
+      "title": "Health Check Status (if available)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "dsp_fd2_health_check_status{manifest_id=\"${project_id}\"}",
+          "legendFormat": "{{target_name}}",
+          "instant": true
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "job": true,
+              "instance": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "target_name": "Health Check Target",
+              "Value": "Status"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "1": {
+                        "color": "green",
+                        "text": "Healthy"
+                      },
+                      "0": {
+                        "color": "red",
+                        "text": "Unhealthy"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Rate (if available)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(dsp_fd2_request_count{manifest_id=\"${project_id}\"}[5m])",
+          "legendFormat": "{{module_name}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10
+          },
+          "unit": "reqps"
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Latency p95 (if available)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, rate(dsp_fd2_request_latency_seconds_bucket{manifest_id=\"${project_id}\"}[5m]))",
+          "legendFormat": "{{module_name}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10
+          },
+          "unit": "s"
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Error Rate (if available)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(dsp_fd2_error_count{manifest_id=\"${project_id}\"}[5m])",
+          "legendFormat": "{{module_name}} - {{error_type}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10
+          },
+          "unit": "errors/s"
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    }
+  ]
+}

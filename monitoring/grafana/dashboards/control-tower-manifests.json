@@ -1,0 +1,417 @@
+{
+  "id": null,
+  "uid": "ct-manifests-overview",
+  "title": "Control Tower - Manifests Overview",
+  "tags": ["control-tower", "manifests"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "ct_url",
+        "type": "constant",
+        "label": "Control Tower URL",
+        "value": "http://host.docker.internal:8000",
+        "description": "Control Tower API base URL"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "table",
+      "title": "Active Manifests",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "manifests",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "project_id": 0,
+              "project_name": 1,
+              "environment": 2,
+              "owner": 3,
+              "module_count": 4,
+              "created_at": 5,
+              "updated_at": 6,
+              "version": 7
+            },
+            "renameByName": {
+              "created_at": "Start Date",
+              "updated_at": "Last Updated"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "links": [
+            {
+              "title": "View Details",
+              "url": "/d/ct-manifest-details?var-project_id=${__data.fields.project_id}"
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Project ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View Details",
+                    "url": "/d/ct-manifest-details?var-project_id=${__value.text}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Start Date"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last Updated"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              },
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Modules"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "Last Updated",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Manifests",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "count",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 10,
+                "color": "yellow"
+              },
+              {
+                "value": 20,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "piechart",
+      "title": "Manifests by Environment",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "manifests",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 6,
+        "y": 12
+      },
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "environment": {
+                "aggregations": ["count"],
+                "operation": "groupby"
+              }
+            }
+          }
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": ["value"]
+        },
+        "pieType": "pie",
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Module Count by Manifest",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "manifests",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 15,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 5,
+                "color": "yellow"
+              },
+              {
+                "value": 10,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Manifest Activity Timeline",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "targets": [
+        {
+          "columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "manifests",
+          "source": "url",
+          "type": "json",
+          "url": "http://host.docker.internal:8000/manifests",
+          "url_options": {
+            "data": "",
+            "method": "GET"
+          }
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "points",
+            "pointSize": 8,
+            "showPoints": "always"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    }
+  ]
+}

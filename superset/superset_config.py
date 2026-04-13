@@ -1,0 +1,27 @@
+import os
+
+SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY", "change-this-before-production")
+SQLALCHEMY_DATABASE_URI = os.environ.get(
+    "SUPERSET_METADATA_DB_URI",
+    "sqlite:////app/superset_home/superset.db",
+)
+FEATURE_FLAGS = {
+    "EMBEDDED_SUPERSET": True,
+    "ENABLE_TEMPLATE_PROCESSING": True,
+    "DASHBOARD_RBAC": True,
+    "TAGGING_SYSTEM": True,
+}
+GUEST_TOKEN_JWT_SECRET = os.environ.get("SUPERSET_GUEST_TOKEN_JWT_SECRET", SECRET_KEY)
+GUEST_TOKEN_JWT_ALGO = os.environ.get("SUPERSET_GUEST_TOKEN_JWT_ALGO", "HS256")
+GUEST_ROLE_NAME = os.environ.get("SUPERSET_GUEST_ROLE_NAME", "Gamma")
+WTF_CSRF_ENABLED = os.environ.get("SUPERSET_WTF_CSRF_ENABLED", "false").lower() == "true"
+ENABLE_PROXY_FIX = True
+TALISMAN_ENABLED = False
+ROW_LIMIT = int(os.environ.get("SUPERSET_ROW_LIMIT", "5000"))
+SQLLAB_CTAS_NO_LIMIT = True
+CACHE_CONFIG = {
+    "CACHE_TYPE": "SimpleCache",
+    "CACHE_DEFAULT_TIMEOUT": 300,
+}
+DATA_CACHE_CONFIG = CACHE_CONFIG
+FILTER_STATE_CACHE_CONFIG = CACHE_CONFIG

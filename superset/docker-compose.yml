@@ -1,0 +1,27 @@
+services:
+  superset-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+      - "8811:8811"
+    environment:
+      SUPERSET_SECRET_KEY: change-this-before-production
+      SUPERSET_ADMIN_USERNAME: admin
+      SUPERSET_ADMIN_PASSWORD: admin
+      SUPERSET_ADMIN_FIRSTNAME: Superset
+      SUPERSET_ADMIN_LASTNAME: Admin
+      SUPERSET_ADMIN_EMAIL: admin@example.com
+      SUPERSET_INTERNAL_URL: http://127.0.0.1:8088
+      SUPERSET_PUBLIC_URL: http://localhost:8088
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: 8811
+      MCP_TRANSPORT: streamable-http
+      STARBURST_DATABASE_NAME: starburst
+      STARBURST_SQLALCHEMY_URI: trino://starburst_user:starburst_password@your-starburst-host:8080/your_catalog/your_schema
+    volumes:
+      - superset_home:/app/superset_home
+
+volumes:
+  superset_home:

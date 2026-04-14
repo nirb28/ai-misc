@@ -4,7 +4,7 @@ timeout: 120
 models:
   - model: openai/gpt-oss-20b
     api_base: https://integrate.api.nvidia.com/v1
-    api_key: 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
+    api_key: 
     timeout: 600
   - alias: default
     model: gpt-4.1-nano-2025-04-14

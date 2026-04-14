@@ -1,7 +1,7 @@
 {
   "schema": "public",
-  "catalog": "wrenai",
-  "dataSource": "DUCKDB",
+  "catalog": "data-product-1",
+  "dataSource": "sdp",
   "models": [
     {
       "name": "olist_customers_dataset",

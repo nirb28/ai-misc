@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "wren-dlt-connector": {
+      "source": "Canner/wren-engine",
+      "sourceType": "github",
+      "computedHash": "d71bafc3bc4f07bfcf0ab55d2dfb869c3dbb37d4bf6f8cdec8f268ca733a8576"
+    },
+    "wren-generate-mdl": {
+      "source": "Canner/wren-engine",
+      "sourceType": "github",
+      "computedHash": "1f21a41147e3ba9909998389d8eee651722da5d5fce5421dc99978e6a8c1a346"
+    },
+    "wren-usage": {
+      "source": "Canner/wren-engine",
+      "sourceType": "github",
+      "computedHash": "664ed64e57d03eb1006865788c851717599a0d3af0335843a33b0cd86b0047cd"
+    }
+  }
+}

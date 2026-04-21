@@ -13,3 +13,4 @@ code-assist/lab/
 *.egg-info
 .env
 wren/wren-launcher-windows.exe
+.wren_venv

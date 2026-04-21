@@ -1,0 +1,30 @@
+name: raw_orders
+table_reference:
+  catalog: jaffle_shop
+  schema: main
+  table: raw_orders
+columns:
+  - name: id
+    type: INT
+    is_calculated: false
+    not_null: false
+    is_primary_key: true
+    properties: {}
+  - name: user_id
+    type: INT
+    is_calculated: false
+    not_null: false
+    properties: {}
+  - name: order_date
+    type: DATE
+    is_calculated: false
+    not_null: false
+    properties: {}
+  - name: status
+    type: TEXT
+    is_calculated: false
+    not_null: false
+    properties: {}
+primary_key: id
+cached: false
+properties: {}

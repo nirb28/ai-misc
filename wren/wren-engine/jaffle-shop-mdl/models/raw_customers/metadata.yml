@@ -1,0 +1,25 @@
+name: raw_customers
+table_reference:
+  catalog: jaffle_shop
+  schema: main
+  table: raw_customers
+columns:
+  - name: id
+    type: INT
+    is_calculated: false
+    not_null: false
+    is_primary_key: true
+    properties: {}
+  - name: first_name
+    type: TEXT
+    is_calculated: false
+    not_null: false
+    properties: {}
+  - name: last_name
+    type: TEXT
+    is_calculated: false
+    not_null: false
+    properties: {}
+primary_key: id
+cached: false
+properties: {}

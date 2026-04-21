@@ -25,6 +25,9 @@ services:
     expose:
       - ${WREN_ENGINE_PORT}
       - ${WREN_ENGINE_SQL_PORT}
+    ports:
+      - ${WREN_ENGINE_PORT}:${WREN_ENGINE_PORT}
+      - ${WREN_ENGINE_SQL_PORT}:${WREN_ENGINE_SQL_PORT}
     volumes:
       - data:/usr/src/app/etc
       - ${PROJECT_DIR}/data:/usr/src/app/data
@@ -39,6 +42,8 @@ services:
     platform: ${PLATFORM}
     expose:
       - ${IBIS_SERVER_PORT}
+    ports:
+      - ${IBIS_SERVER_PORT}:${IBIS_SERVER_PORT}
     environment:
       WREN_ENGINE_ENDPOINT: http://wren-engine:${WREN_ENGINE_PORT}
     volumes:

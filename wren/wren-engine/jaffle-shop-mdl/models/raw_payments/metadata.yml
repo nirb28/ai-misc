@@ -1,0 +1,30 @@
+name: raw_payments
+table_reference:
+  catalog: jaffle_shop
+  schema: main
+  table: raw_payments
+columns:
+  - name: id
+    type: INT
+    is_calculated: false
+    not_null: false
+    is_primary_key: true
+    properties: {}
+  - name: order_id
+    type: INT
+    is_calculated: false
+    not_null: false
+    properties: {}
+  - name: payment_method
+    type: TEXT
+    is_calculated: false
+    not_null: false
+    properties: {}
+  - name: amount
+    type: INT
+    is_calculated: false
+    not_null: false
+    properties: {}
+primary_key: id
+cached: false
+properties: {}
